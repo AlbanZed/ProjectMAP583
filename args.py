@@ -9,10 +9,10 @@ def parse_args():
 
     #  experiment settings
     # name of the experiment
-    parser.add_argument('--name', default='gtrb_resnet', type=str,
+    parser.add_argument('--name', default='wiki_resnet', type=str,
                         help='name of experiment')
     # name of dataset used in the experiment, e.g. gtsrd
-    parser.add_argument('--dataset', default='gtsrb', type=str,
+    parser.add_argument('--dataset', default='wiki_crop', type=str,
                         help='name of dataset to train upon')
     parser.add_argument('--test', dest='test', action='store_true', default=False,
                         help='To only run inference on test set')

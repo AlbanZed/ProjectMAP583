@@ -128,6 +128,9 @@ def read_mat(data_dir,file_name):
 
     for i in range(len(dob)):
         dob_dt=date.fromordinal(dob[i]) + timedelta(days=0) - timedelta(days = 366)
-        label_list.append(photo_taken[i]-dob_dt.year)
-        image_list.append(image_list_array[i][0])
+        label=photo_taken[i]-dob_dt.year
+        if -1<label<100:
+            label_list.append(label)
+            image_list.append(image_list_array[i][0])
+    
     return image_list,label_list

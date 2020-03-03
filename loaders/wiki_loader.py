@@ -2,8 +2,11 @@ import os
 from PIL import Image
 import numpy as np
 import torch
+from toolbox.utils import read_mat
 
-data_dir = 'C:/Users/charl/Documents/3A/MAP583 DL/Project/data/wiki_crop/'
+
+import torchvision.transforms as transforms
+
 
 idx2label = {i:i for i in range(100)}
 
@@ -14,20 +17,21 @@ class WikiLoader(torch.utils.data.Dataset):
     def __init__(self, data_dir, split, custom_transforms=None, list_dir=None,
              out_name=False,  crop_size=None, num_classes=100, phase=None):
     
-    self.data_dir = data_dir
-    self.split = split
-    self.phase = split if phase is None else phase
-    self.crop_size = 224 if crop_size is None else crop_size # mef input_channels
-    self.out_name = out_name
-    self.idx2label = idx2label
-    self.classnames = classnames
-
-    self.num_classes = num_classes
-    self.mean = np.array([0.3337, 0.3064, 0.3171])
-    self.std = np.array([0.2672, 0.2564, 0.2629])
-    self.image_list, self.label_list = None, None
-    self.read_lists()
-    self.transforms = self.get_transforms(custom_transforms)
+        self.data_dir = data_dir
+        self.split = split
+        self.phase = split if phase is None else phase
+        self.crop_size = 224 if crop_size is None else crop_size # mef input_channels
+        self.out_name = out_name
+        self.idx2label = idx2label
+        self.classnames = classnames
+        
+        self.file_name="wiki.mat"
+        self.num_classes = num_classes
+        self.mean = np.array([0.3337, 0.3064, 0.3171])
+        self.std = np.array([0.2672, 0.2564, 0.2629])
+        self.image_list, self.label_list = read_mat(self.data_dir,self.file_name)
+        
+        self.transforms = self.get_transforms(custom_transforms)
     
     
     def __getitem__(self, index):

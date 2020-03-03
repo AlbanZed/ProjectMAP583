@@ -5,6 +5,6 @@ def get_loader(args):
     :param name:
     """
     return {
-        'wiki_loader' : WikiLoader,
+        'wiki_crop' : WikiLoader,
         # feel free to add new datasets here
     }[args.dataset]

@@ -25,7 +25,7 @@ class WikiLoader(torch.utils.data.Dataset):
         self.idx2label = idx2label
         self.classnames = classnames
         
-        self.file_name="wiki.mat"
+        self.file_name="/wiki.mat"
         self.num_classes = num_classes
         self.mean = np.array([0.3337, 0.3064, 0.3171])
         self.std = np.array([0.2672, 0.2564, 0.2629])
@@ -35,7 +35,7 @@ class WikiLoader(torch.utils.data.Dataset):
     
     
     def __getitem__(self, index):
-        im = Image.open(f'{self.data_dir}/{self.image_list[index]}')
+        im = Image.open(f'{self.data_dir}/{self.image_list[index]}').convert("RGB")
         data = [self.transforms(im)]
         data.append(self.label_list[index])
         if self.out_name:
@@ -49,7 +49,6 @@ class WikiLoader(torch.utils.data.Dataset):
     def get_transforms(self, custom_transforms):
         if custom_transforms:
             return custom_transforms
-
         if 'train' == self.phase:
             return transforms.Compose([
                 transforms.Resize((self.crop_size, self.crop_size)), #centercrop

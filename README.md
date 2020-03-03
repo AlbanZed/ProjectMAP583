@@ -73,5 +73,12 @@ In order the visualize metrics and results in tensorboard you need to launch it 
 If you have performed multiple experiments, tensorboard will aggregate them in the same dashboard.
   
   
+  
+  
+python commander.py --dataset wiki_crop --name wiki_vggnet_sgd_lr1e-3_lrdecayPlateau0.5_bsz64 --batch-size 64 --optimizer sgd --scheduler ReduceLROnPlateau --lr 1e-3 --lr-decay 0.5 --step 15 --epochs 100 --arch vggnet --model-name vggnet --root-dir /home/skand/Workspace/3A/DL/Project/Data --num-classes 100 --workers 4 --crop-size 224 --tensorboard
+
+
+
+  
  ## Dependencies
  - [imageio](http://imageio.github.io/)

@@ -1,13 +1,21 @@
-# pytorch-gtsrb
+# Age estimation with Deep Learning
 
-This is an illustrative example for a deep learning project in pytorch for the [DL-DIY course](https://mlelarge.github.io/dataflowr-web/dldiy.html). We use the [German Traffic Sign Recognition Benchmark (GTSRB)](http://benchmark.ini.rub.de/?section=gtsrb&subsection=news) to show how could the code be structured for easier testing of new architectures and parameters, tracking of results and improving of the models.
+This is our submission for the deep learning project in pytorch for the [DL-DIY course](https://mlelarge.github.io/dataflowr-web/dldiy.html). We use a dataset of face images to estimate the age of the pictured person.
 
 ## Data
-The original GTSRB datasets consists of large `.ppm` images of scenes with bounding box coordinates for the traffic signs. We use here a post-processed variant where signs have already been cropped out from their corresponding images and resized to 32 x 32. 
 
-We use a similar set-up with the Udacity course for the data. You can download the zipped data from [here](https://drive.google.com/open?id=1E3cc8yNBL5vZ8XGVOKuWY9w8BpO4EVbK).
+Our dataset contains 62,328 images of faces that were taken from Wikipedia. To download it, please click [here](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/wiki_crop.tar).
 
-A presentation of the dataset, its content and statistics on classes can be accessed [here](https://github.com/mohamedameen93/German-Traffic-Sign-Classification-Using-TensorFlow).
+This dataset is used in the paper [DEX: Deep EXpectation of apparent age from a single image](https://data.vision.ee.ethz.ch/cvl/publications/papers/proceedings/eth_biwi_01229.pdf). More information about its content can be found [here](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/).
+
+## Age estimation models
+
+We compared several methods of age estimation.
+
+The first one is an adaptation of the cats and dogs classifier that we studied in class, involving VGGnet. It is a classifier whose labels go from 0 to 99, corresponding to the age of the pictured person.
+
+The second approach is to cut the last layers of the classifier and to replace them with a regressor. Since our dataset provides the date of birth of the person and the date at which the picture was taken, we can consider age as a continuous value instead of disordered classes.
+
 
 ## Project structure
 
@@ -17,7 +25,7 @@ The project is structured as following:
 .
 ├── loaders
 |   └── dataset selector
-|   └── gtsrb_loader.py # loading and pre-processing gtsrb data
+|   └── wiki_loader.py # loading and pre-processing Wikipedia data
 ├── models
 |   └── architecture selector
 |   └── lenet.py # classical CNN

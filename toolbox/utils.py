@@ -13,6 +13,11 @@ import torch
 import torchvision
 import torch.backends.cudnn as cudnn
 
+
+import scipy.io as sio
+from datetime import timedelta
+from datetime import  date
+
 '''
  o8o               o8o      .
  `"'               `"'    .o8
@@ -106,3 +111,23 @@ def save_res_list(res_list, fn):
 
 def count_params(model):
    return sum([p.data.nelement() for p in model.parameters()])
+
+
+def read_mat(data_dir,file_name):
+    """image_list is the list of file_names
+        label_list is the list of labels"""
+    mat_fname=data_dir+file_name
+    mat_contents = sio.loadmat(mat_fname)
+    image_list_array=mat_contents['wiki'][0][0][2][0]
+    
+    dob=mat_contents['wiki'][0][0][0][0] #date_of_birth, matlab datenum format
+    photo_taken=mat_contents['wiki'][0][0][1][0] #date the photo was taken
+    
+    label_list=[]
+    image_list=[]
+
+    for i in range(len(dob)):
+        dob_dt=date.fromordinal(dob[i]) + timedelta(days=0) - timedelta(days = 366)
+        label_list.append(photo_taken[i]-dob_dt.year)
+        image_list.append(image_list_array[i][0])
+    return image_list,label_list

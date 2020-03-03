@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument('--arch', type=str,
                         help='type of architecture to be used, e.g. vggnet')
     parser.add_argument('--model-name', type=str,
-                        help='type of model to be used. Particular instance of a given architecture, e.g. vggnet18')    
+                        help='type of model to be used. Particular instance of a given architecture, e.g. vggnet16')    
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='which checkpoint to resume from. possible values["latest", "best", epoch]')
     parser.add_argument('--pretrained', action='store_true',

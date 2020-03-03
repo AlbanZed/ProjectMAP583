@@ -12,7 +12,7 @@ This dataset is used in the paper [DEX: Deep EXpectation of apparent age from a 
 
 We compared several methods of age estimation.
 
-The first one is an adaptation of the cats and dogs classifier that we studied in class, involving VGGnet. It is a classifier whose labels go from 0 to 99, corresponding to the age of the pictured person.
+The first one is an adaptation of the cats and dogs classifier that we studied in class, involving VGGNet. It is a classifier whose labels go from 0 to 99, corresponding to the age of the pictured person.
 
 The second approach is to cut the last layers of the classifier and to replace them with a regressor. Since our dataset provides the date of birth of the person and the date at which the picture was taken, we can consider age as a continuous value instead of disordered classes.
 

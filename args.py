@@ -9,10 +9,10 @@ def parse_args():
 
     #  experiment settings
     # name of the experiment
-    parser.add_argument('--name', default='gtrb_resnet', type=str,
+    parser.add_argument('--name', default='wiki_vggnet', type=str,
                         help='name of experiment')
     # name of dataset used in the experiment, e.g. gtsrd
-    parser.add_argument('--dataset', default='gtsrb', type=str,
+    parser.add_argument('--dataset', default='wiki_crop', type=str,
                         help='name of dataset to train upon')
     parser.add_argument('--test', dest='test', action='store_true', default=False,
                         help='To only run inference on test set')
@@ -22,30 +22,30 @@ def parse_args():
    
     # model settings
     parser.add_argument('--arch', type=str,
-                        help='type of architecture to be used, e.g. resnet')
+                        help='type of architecture to be used, e.g. vggnet')
     parser.add_argument('--model-name', type=str,
-                        help='type of model to be used. Particular instance of a given architecture, e.g. resnet18')    
+                        help='type of model to be used. Particular instance of a given architecture, e.g. vggnet16')    
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='which checkpoint to resume from. possible values["latest", "best", epoch]')
     parser.add_argument('--pretrained', action='store_true',
-                        default=False, help='use pre-trained model')
+                        default=True, help='use pre-trained model')
 
     # data settings
-    parser.add_argument('--num-classes', default=0, type=int)
+    parser.add_argument('--num-classes', default=100, type=int)
     parser.add_argument('--input-channels', default=3, type=int)
     # size of images to be fed to the CNN
-    parser.add_argument('-s', '--crop-size', default=0, type=int)
+    parser.add_argument('-s', '--crop-size', default=224, type=int)
     # number of workers for the dataloader
     parser.add_argument('-j', '--workers', type=int, default=4)
 
     # training settings
     parser.add_argument('--start-epoch', type=int, default=1)
     parser.add_argument('--step', type=int, default=20, help='frequency of updating learning rate, given in epochs')
-    parser.add_argument('--batch-size', type=int, default=4, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 4)')
-    parser.add_argument('--epochs', type=int, default=70, metavar='N',
+    parser.add_argument('--epochs', type=int, default=15, metavar='N',
                         help='number of epochs to train (default: 70)')
-    parser.add_argument('--optimizer', default='sgd', type=str,
+    parser.add_argument('--optimizer', default='adam', type=str,
                         help='name of the optimizer')
     parser.add_argument('--scheduler', default='StepLR', type=str,
                         help='name of the learning rate scheduler')

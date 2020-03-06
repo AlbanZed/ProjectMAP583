@@ -1,4 +1,4 @@
-# Age estimation with Deep Learning
+# Apparent age estimation with Deep Learning
 
 This is our submission for the deep learning project in pytorch for the [DL-DIY course](https://mlelarge.github.io/dataflowr-web/dldiy.html). We use a dataset of face images to estimate the age of the pictured person.
 

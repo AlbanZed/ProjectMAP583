@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
-
+from torchvision import models
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152']
@@ -22,7 +22,6 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 class BasicBlock(nn.Module):
     expansion = 1
-
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
@@ -94,6 +93,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=43, input_channels=3):
+        
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -105,8 +105,9 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=(1,1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -153,7 +154,7 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        
+
         x = self.softmax(x)
 
         return x
@@ -164,30 +165,51 @@ class ResNet(nn.Module):
             yield param
         
 
-def resnet18(pretrained=False, **kwargs):
+def resnet18(pretrained=False, num_classes=100, **kwargs):
     """Constructs a ResNet-18 model. Nota that if you change the number of classes and input channels the loading of the pre-trained model will no longer be possible here. In order to load those weights you need to do some manual surgery over the network, i.e. removing the final fully connected layer and replacing it with your own with the desired amount of output classes.
     
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+#    model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+#    if pretrained:
+#        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+#        for param in model.parameters():
+#            param.requires_grad = False
+#    return model
+    model = models.resnet18(pretrained=pretrained)
+    for param in model.parameters():
+        param.requires_grad = False
+    import pdb
+    pdb.set_trace()
+    model.fc = nn.Linear(512 ,  num_classes)
+
     return model
 
-def resnet34(pretrained=False, **kwargs):
-    model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
+
+def resnet34(pretrained=False, num_classes=100, **kwargs):
+#    model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
+#    if pretrained:
+#        model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
+#    return model
+    model = models.resnet18(pretrained=pretrained)
+    for param in model.parameters():
+        param.requires_grad = False
+    model.fc = nn.Linear(512 ,  num_classes)
+
     return model
 
+def resnet50(pretrained=False, num_classes = 100, **kwargs):
+#    model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
+#    if pretrained:
+#        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+#    return model
+    model = models.resnet18(pretrained=pretrained)
+    for param in model.parameters():
+        param.requires_grad = False
+    model.fc = nn.Linear(512 ,  num_classes)
 
-def resnet50(pretrained=False, **kwargs):
-    model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
     return model
-
 
 
 def resnet(model_name, num_classes, input_channels, pretrained=False):

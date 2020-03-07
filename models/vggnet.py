@@ -15,6 +15,8 @@ def vggnet(model_name, num_classes, input_channels, pretrained=True):
         'vggnet': VggNet_downloaded(num_classes=num_classes, input_channels=input_channels,pretrained=True),
     }[model_name]
 
+def VggNet_for_GLL(model_name, input_channels, pretrained=True):
+    return vggnet(model_name, num_classes=2, input_channels, pretrained=True)
 
 
 

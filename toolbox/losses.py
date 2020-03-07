@@ -58,3 +58,13 @@ class GramMatrix(nn.Module):
         gram_matrix = torch.bmm(features, features.transpose(1,2))
         return gram_matrix
 
+class GLLoss(nn.Module):
+    def __init__(self):
+        super(GLLoss, self).__init__()
+    
+    def forward(self, outputs, target):
+        output = outputs[0]
+        logvar = outputs[1]
+        term1 = -0.5*torch.exp(-logvar)*(target - output)**2
+        term2 = 0.5*logvar
+        return (term1 + term2).sum()

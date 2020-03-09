@@ -79,5 +79,3 @@ If you have performed multiple experiments, tensorboard will aggregate them in t
 
 
   
- ## Dependencies
- - [imageio](http://imageio.github.io/)

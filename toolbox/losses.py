@@ -18,6 +18,7 @@ def get_criterion(args, class_weights=None):
             'focal': FocalLoss(ignore_index=255),
             'mse': nn.MSELoss(reduction='elementwise_mean'), 
             'l1': nn.L1Loss(reduction='elementwise_mean'), 
+            'gll':GLLoss()
         }[args.criterion]
         
     else:
@@ -63,8 +64,13 @@ class GLLoss(nn.Module):
         super(GLLoss, self).__init__()
     
     def forward(self, outputs, target):
-        output = outputs[0]
-        logvar = outputs[1]
-        term1 = -0.5*torch.exp(-logvar)*(target - output)**2
-        term2 = 0.5*logvar
+        
+        output = outputs[:,0]
+        logvar = outputs[:,1]
+
+#        term1 = -0.5*torch.exp(-F.relu(logvar))*((target - output)/100)**2
+        term1 = ((target - output)/100)**2
+        term2 = 0.5*F.relu(logvar)
+#        import pdb
+#        pdb.set_trace()
         return (term1 + term2).sum()

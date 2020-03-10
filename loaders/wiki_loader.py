@@ -14,7 +14,7 @@ classnames = list(range(100))
 
 class WikiLoader(torch.utils.data.Dataset):
     
-    def __init__(self, data_dir, split, custom_transforms=None, list_dir=None,
+    def __init__(self, data_dir, split, size_dataset, custom_transforms=None, list_dir=None,
              out_name=False,  crop_size=None, num_classes=100, phase=None):
     
         self.data_dir = data_dir
@@ -29,7 +29,7 @@ class WikiLoader(torch.utils.data.Dataset):
         self.num_classes = num_classes
         self.mean = np.array([0.3337, 0.3064, 0.3171])
         self.std = np.array([0.2672, 0.2564, 0.2629])
-        self.image_list, self.label_list = read_mat(self.data_dir,self.file_name)
+        self.image_list, self.label_list = read_mat(self.data_dir,self.file_name,size_dataset)
         
         self.transforms = self.get_transforms(custom_transforms)
     

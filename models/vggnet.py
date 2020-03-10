@@ -13,10 +13,15 @@ def VggNet_downloaded(num_classes=100, input_channels=3,pretrained=True):
 def vggnet(model_name, num_classes, input_channels, pretrained=True):
     return{
         'vggnet': VggNet_downloaded(num_classes=num_classes, input_channels=input_channels,pretrained=True),
+        'vggnet_gll': VggNet_for_GLL(num_classes=num_classes, input_channels=input_channels,pretrained=True)
     }[model_name]
 
-def VggNet_for_GLL(model_name, input_channels, pretrained=True):
-    return vggnet(model_name, num_classes=2, input_channels, pretrained=True)
+def VggNet_for_GLL(num_classes=2, input_channels=3, pretrained=True):
+    model_vgg = models.vgg16(pretrained=pretrained) ### Downloading the original VGG 16, with an output vector of 1000
+    for param in model_vgg.parameters():
+        param.requires_grad = False
+    model_vgg.classifier._modules['6'] = nn.Linear(4096, num_classes)  ### changing the output form, now a tensor of size 2, output[0] the mean and ouput[1] the logvariance
+    return model_vgg
 
 
 

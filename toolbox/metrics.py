@@ -237,14 +237,14 @@ def accuracy_regression(output, target):
     mse_mean = (output - target).pow(2).mean()
     mse_std = (output - target).pow(2).std()
     rmse = (output - target).pow(2).mean().sqrt()
-    return mae, mse, rmse
-    return mae_mean.item(), mae_std.item(), mse_mean.item(), mse_std.item(), rmse_mean.item(), rmse_std.item()
+#    return mae, mse, rmse
+    return mae_mean.item(), mae_std.item(), mse_mean.item(), mse_std.item(), rmse.item()
 
 
 def fast_hist(pred, label, n):
     k = (label >= 0) & (label < n)
     return np.bincount(
-        n * label[k].astype(int) + pred[k], minlength=n ** 2).reshape(n, n)
+        n * label[k].astype(int) + pred[k].astype(int), minlength=n ** 2).reshape(n, n)
 
 
 def per_class_iu(hist):

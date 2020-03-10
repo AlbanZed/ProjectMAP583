@@ -27,7 +27,7 @@ def parse_args():
                         help='type of model to be used. Particular instance of a given architecture, e.g. vggnet16')    
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='which checkpoint to resume from. possible values["latest", "best", epoch]')
-    parser.add_argument('--pretrained', action='store_true',
+    parser.add_argument('--pretrained', action='store_false',
                         default=True, help='use pre-trained model')
 
     # data settings
@@ -70,6 +70,8 @@ def parse_args():
                         help='disables CUDA training / using only CPU')
     parser.add_argument('--tensorboard', dest='tensorboard', action='store_true',default=False,
                         help='Use tensorboard to track and plot')
+    parser.add_argument('--size_dataset', default = 50000, type=int)
+    parser.add_argument('--task', default = 'classification', type=str)
 
     args = parser.parse_args()
 

@@ -47,17 +47,24 @@ def train(args, train_loader, model, criterion, optimizer, logger, epoch,
         optimizer.step()
 
         # measure accuracy and record loss
-        if eval_score is not None:
+        if eval_score is not None and args.task == 'classification':
             acc1, pred, label = eval_score(output, target_class)
+#            import ipdb
+#            ipdb.set_trace()
             meters['acc1'].update(acc1, n=batch_size)
             meters['confusion_matrix'].update(pred.squeeze(), label.type(torch.LongTensor))
 
+        if eval_score is not None and args.task == 'regression':
+#            import ipdb
+#            ipdb.set_trace()
+            mae_mean,mae_std,mse_mean,mse_std,rmse = eval_score(output[:,0],target_class)
+            meters['acc1'].update(mae_mean, n=batch_size)
 
         # measure elapsed time
         meters['batch_time'].update(time.time() - end, n=batch_size)
         end = time.time()
 
-        if i % print_freq == 0:
+        if i % print_freq == 0 and args.task == 'classification':
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
@@ -67,6 +74,15 @@ def train(args, train_loader, model, criterion, optimizer, logger, epoch,
                    epoch, i, len(train_loader), batch_time=meters['batch_time'],
                    data_time=meters['data_time'], lr=meters_params['learning_rate'], loss=meters['loss'], top1=meters['acc1']))
 
+        if i % print_freq == 0 and args.task == 'regression':
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                  'LR {lr.val:.2e}\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'MAE {top1.val:.3f} ({top1.avg:.3f})'.format(
+                   epoch, i, len(train_loader), batch_time=meters['batch_time'],
+                   data_time=meters['data_time'], lr=meters_params['learning_rate'], loss=meters['loss'], top1=meters['acc1']))
 
         if True == args.short_run:
             if 12 == i:
@@ -74,11 +90,16 @@ def train(args, train_loader, model, criterion, optimizer, logger, epoch,
                 break    
 
    
-    if args.tensorboard:
+    if args.tensorboard and args.task == 'classification':
         tb_writer.add_scalar('acc1/train', meters['acc1'].avg, epoch)
         tb_writer.add_scalar('loss/train', meters['loss'].avg, epoch)
         tb_writer.add_scalar('learning rate', meters_params['learning_rate'].val, epoch)
        
+    if args.tensorboard and args.task == 'regression':
+        tb_writer.add_scalar('mae/train', meters['acc1'].avg, epoch)
+        tb_writer.add_scalar('loss/train', meters['loss'].avg, epoch)
+        tb_writer.add_scalar('learning rate', meters_params['learning_rate'].val, epoch)
+
     logger.log_meters('train', n=epoch)
     logger.log_meters('hyperparams', n=epoch)
 
@@ -119,7 +140,8 @@ def validate(args, val_loader, model, criterion, logger, epoch, eval_score=None,
             meters['loss'].update(loss.data.item(), n=batch_size)
 
             # measure accuracy and record loss
-            if eval_score is not None:
+            if eval_score is not None and args.task== 'classification':
+            
                 acc1, pred, buff_label = eval_score(output, target_class)
                 meters['acc1'].update(acc1, n=batch_size)
                 meters['confusion_matrix'].update(pred.squeeze(), buff_label.type(torch.LongTensor))
@@ -133,7 +155,18 @@ def validate(args, val_loader, model, criterion, logger, epoch, eval_score=None,
                 hist += metrics.fast_hist(pred.flatten(), label.flatten(), args.num_classes)
                 mean_ap = round(np.nanmean(metrics.per_class_iu(hist)) * 100, 2)
                 meters['mAP'].update(mean_ap, n=batch_size)
+          
+            if eval_score is not None and args.task == 'regression':
+                mae_mean,mae_std,mse_mean,mse_std,rmse = eval_score(output[:,0],target_class)
+                meters['acc1'].update(mae_mean, n=batch_size)
 
+                pred = output[:,0].int()
+
+                for idx, curr_name in enumerate(name):
+                    res_list[curr_name] = [pred[idx].item(), target_class[idx].item()]
+
+                pred = pred.to('cpu').data.numpy()
+                
             # measure elapsed time
             end = time.time()
             meters['batch_time'].update(time.time() - end, n=batch_size)
@@ -142,46 +175,65 @@ def validate(args, val_loader, model, criterion, logger, epoch, eval_score=None,
             if i == 0:
                utils.save_res_grid(input.detach().to('cpu').clone(), val_loader, pred, 
                         target_class.to('cpu').clone(), 
-                        out_fn=os.path.join(args.log_dir,'pics', '{}_watch_mosaic_pred_labels.jpg'.format(args.name)))
+                        out_fn=os.path.join(args.log_dir,'pics', '{}_watch_mosaic_pred_labels.png'.format(args.name)))
 
 
-            if i % print_freq == 0:
+            if i % print_freq == 0 and args.task == 'classification': 
                 print('Validation: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                       'Acc@1 {score.val:.3f} ({score.avg:.3f})'.format(
                       i, len(val_loader), batch_time=meters['batch_time'], loss=meters['loss'],
                       score=meters['acc1']), flush=True)
-
+            if i % print_freq == 0 and args.task == 'regression':
+                print('Validation: [{0}/{1}]\t'
+                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'MAE {score.val:.3f} ({score.avg:.3f})'.format(
+                      i, len(val_loader), batch_time=meters['batch_time'], loss=meters['loss'],
+                      score=meters['acc1']), flush=True)
+                
             if True == args.short_run:
                 if 12 == i:
                     print(' --- running in short-run mode: leaving epoch earlier ---')
                     break
 
+    if args.task == 'classification':
+        acc, acc_cls, mean_iu, fwavacc = metrics.evaluate(hist)
+        meters['acc_class'].update(acc_cls)
+        meters['meanIoU'].update(mean_iu)
+        meters['fwavacc'].update(fwavacc)
     
-    acc, acc_cls, mean_iu, fwavacc = metrics.evaluate(hist)
-    meters['acc_class'].update(acc_cls)
-    meters['meanIoU'].update(mean_iu)
-    meters['fwavacc'].update(fwavacc)
-
-    print(' * Validation set: Average loss {:.4f}, Accuracy {:.3f}%, Accuracy per class {:.3f}%, meanIoU {:.3f}%, \
+        print(' * Validation set: Average loss {:.4f}, Accuracy {:.3f}%, Accuracy per class {:.3f}%, meanIoU {:.3f}%, \
             fwavacc {:.3f}% \n'.format(meters['loss'].avg, meters['acc1'].avg, meters['acc_class'].val,
                                        meters['meanIoU'].val, meters['fwavacc'].val ))
 
-    logger.log_meters('val', n=epoch)
+        logger.log_meters('val', n=epoch)
     
-    utils.save_res_list(res_list, os.path.join(args.res_dir, 'val_results_list_ep{}.json'.format(epoch)))
+        utils.save_res_list(res_list, os.path.join(args.res_dir, 'val_results_list_ep{}.json'.format(epoch)))
         
-    if args.tensorboard:
+    if args.task == 'regression' :
+        print(' * Validation set: Average loss {:.4f}, MAE {:.3f}% \n'.format(meters['loss'].avg, meters['acc1'].avg))
+
+        logger.log_meters('val', n=epoch)
+    
+        utils.save_res_list(res_list, os.path.join(args.res_dir, 'val_results_list_ep{}.json'.format(epoch)))
+        
+    if args.tensorboard and args.task == 'classification':
         tb_writer.add_scalar('acc1/val', meters['acc1'].avg, epoch)
         tb_writer.add_scalar('loss/val', meters['loss'].avg, epoch)
         tb_writer.add_scalar('mAP/val', meters['mAP'].avg, epoch)
         tb_writer.add_scalar('acc_class/val', meters['acc_class'].val, epoch)
         tb_writer.add_scalar('meanIoU/val', meters['meanIoU'].val, epoch)
         tb_writer.add_scalar('fwavacc/val', meters['fwavacc'].val, epoch)
-        im = imageio.imread('{}'.format(os.path.join(args.log_dir,'pics', '{}_watch_mosaic_pred_labels.jpg'.format(args.name))))
+        im = imageio.imread('{}'.format(os.path.join(args.log_dir,'pics', '{}_watch_mosaic_pred_labels.png'.format(args.name))))
         tb_writer.add_image('Image', im.transpose((2, 0, 1)), epoch)
         
+    if args.tensorboard and args.task == 'regression':
+        tb_writer.add_scalar('mae/val', meters['acc1'].avg, epoch)
+        tb_writer.add_scalar('loss/val', meters['loss'].avg, epoch)
+        im = imageio.imread('{}'.format(os.path.join(args.log_dir,'pics', '{}_watch_mosaic_pred_labels.png'.format(args.name))))
+        tb_writer.add_image('Image', im.transpose((2, 0, 1)), epoch)
     return meters['mAP'].val, meters['loss'].avg, res_list
 
 

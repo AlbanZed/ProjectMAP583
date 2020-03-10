@@ -132,10 +132,10 @@ def main():
 
     # init data loaders
     loader = get_loader(args)
-    train_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir,split='train', 
+    train_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir,split='train', size_dataset=args.size_dataset ,
         phase='train', num_classes=args.num_classes, crop_size=args.crop_size), 
         batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-    val_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir, split='val',
+    val_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir, split='val', size_dataset=args.size_dataset,
         phase='test', out_name=True, num_classes=args.num_classes), batch_size=args.batch_size,
         shuffle=False, num_workers=args.workers, pin_memory=True)
 
@@ -161,13 +161,17 @@ def main():
 
     model.to(args.device)
     criterion.to(args.device)
-
+    if args.task == 'regression':
+        eval_score = metrics.accuracy_regression
+    else:
+        eval_score = metrics.accuracy_classif
+        
     if args.test:
-        test_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir, split='test', 
+        test_loader = torch.utils.data.DataLoader(loader(data_dir=args.data_dir, split='test', size_dataset=args.size_dataset,
             phase='test', out_name=True, num_classes=args.num_classes), batch_size=args.batch_size,
             shuffle=False, num_workers=args.workers, pin_memory=True)
         trainer.test(args, test_loader, model, criterion, args.start_epoch, 
-            eval_score=metrics.accuracy_classif, output_dir=args.out_pred_dir, has_gt=True)
+            eval_score=eval_score, output_dir=args.out_pred_dir, has_gt=True)
         sys.exit()
 
     is_best = True
@@ -175,10 +179,10 @@ def main():
         print('Current epoch: ', epoch)
        
         trainer.train(args, train_loader, model, criterion, optimizer, exp_logger, epoch,
-              eval_score=metrics.accuracy_classif, tb_writer=tb_writer)
+              eval_score=eval_score, tb_writer=tb_writer)
          
         # evaluate on validation set
-        mAP, val_loss, res_list = trainer.validate(args, val_loader, model, criterion, exp_logger, epoch, eval_score=metrics.accuracy_classif, tb_writer=tb_writer)
+        mAP, val_loss, res_list = trainer.validate(args, val_loader, model, criterion, exp_logger, epoch, eval_score=eval_score, tb_writer=tb_writer)
 
         # update learning rate
         if scheduler is None:

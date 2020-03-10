@@ -180,8 +180,6 @@ def resnet18(pretrained=False, num_classes=100, **kwargs):
     model = models.resnet18(pretrained=pretrained)
     for param in model.parameters():
         param.requires_grad = False
-    import pdb
-    pdb.set_trace()
     model.fc = nn.Linear(512 ,  num_classes)
 
     return model

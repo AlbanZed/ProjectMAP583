@@ -113,7 +113,7 @@ def count_params(model):
    return sum([p.data.nelement() for p in model.parameters()])
 
 
-def read_mat(data_dir,file_name):
+def read_mat(data_dir,file_name,size_dataset):
     """image_list is the list of file_names
         label_list is the list of labels"""
     mat_fname=data_dir+file_name
@@ -125,12 +125,17 @@ def read_mat(data_dir,file_name):
     
     label_list=[]
     image_list=[]
-
+    
+    
+    cpt=0
     for i in range(len(dob)):
+        if cpt>size_dataset : 
+            break
         dob_dt=date.fromordinal(dob[i]) + timedelta(days=0) - timedelta(days = 366)
         label=photo_taken[i]-dob_dt.year
         if -1<label<100:
             label_list.append(label)
             image_list.append(image_list_array[i][0])
-    
+            cpt+=1
+            
     return image_list,label_list

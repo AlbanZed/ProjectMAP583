@@ -69,8 +69,8 @@ class GLLoss(nn.Module):
         output = outputs[:,0]
         logvar = outputs[:,1]
 
-#        term1 = -0.5*torch.exp(-F.relu(logvar))*((target - output)/100)**2
-        term1 = ((target - output)/100)**2
+        term1 = -0.5*torch.exp(-F.relu(logvar))*((target - output)/100)**2
+#        term1 = ((target - output)/100)**2
         term2 = 0.5*F.relu(logvar)
 #        import pdb
 #        pdb.set_trace()
